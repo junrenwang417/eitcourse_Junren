@@ -1,0 +1,19 @@
+---
+title: "paper"
+author: "Junren Wang"
+format: html
+---
+
+# Introduction {#sec-intro}
+
+<!-- TODO: add content -->
+
+![Fig. 1 Mind map](image.jpg)
+
+# Methods {#sec-methods}
+
+# Results {#sec-results}
+
+# Discussion {#sec-discussion}
+
+# References
