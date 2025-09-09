@@ -1,14 +1,86 @@
 ---
 title: "paper"
 author: "Junren Wang"
-format: html
+format:
+  html:
+    toc: false
+crossref:
+  fig-title: "Fig."
 ---
 
 # Introduction {#sec-intro}
 
 <!-- TODO: add content -->
 
-![Fig. 1 Mind map](image.jpg)
+![Mind map](image.jpg){#fig-mindmap}
+
+As shown in @fig-mindmap, the framework illustrates the main research dimensions.
+
+```{r}
+#| label: fig-access
+#| fig-cap: "Facilities coverage"
+#| echo: false
+#| warning: false
+#| message: false
+
+library(ggplot2)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+library(stringr)
+library(scales)
+
+raw <- read_excel("accessibility.xlsx",
+                  col_names = c("facility","threshold","prop_str"))
+
+df <- raw %>%
+  mutate(
+    facility  = str_squish(as.character(facility)),
+    threshold = str_squish(as.character(threshold)),
+    prop_str  = str_squish(as.character(prop_str))
+  ) %>%
+  fill(facility, .direction = "down") %>%
+  filter(
+    !is.na(facility) & facility != "",
+    !is.na(threshold) & threshold != "",
+    !is.na(prop_str) & prop_str != "",
+    !str_detect(threshold, regex("travel", ignore_case = TRUE)),
+    !str_detect(prop_str,  regex("proportion|access", ignore_case = TRUE))
+  ) %>%
+  filter(str_detect(threshold, "\\d+")) %>%
+  mutate(
+    threshold_min = parse_number(threshold),
+    prop_num      = parse_number(prop_str),
+    prop          = ifelse(prop_num > 1, prop_num/100, prop_num),
+    threshold_min = factor(threshold_min, levels = c(15,30,45,60), ordered = TRUE),
+    facility = str_to_title(facility),
+    facility = recode(facility,
+                      "Urban Park" = "Urban park",
+                      "School" = "School",
+                      "Hospital" = "Hospital")
+  )
+
+# 如果不想表格输出，就不要 print()；只画图：
+ggplot(df, aes(x = threshold_min, y = prop,
+               group = facility, color = facility, shape = facility)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  scale_y_continuous(labels = label_percent(accuracy = 1), limits = c(0,1)) +
+  labs(
+    title = "",
+    x = "Travel-time threshold (minutes)",
+    y = "Residents with access",
+    color = "Facility",
+    shape = "Facility"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(plot.title = element_text(face = "bold"),
+        legend.position = "right")
+```
+
+As shown in @fig-access, under 15 min
 
 # Methods {#sec-methods}
 
